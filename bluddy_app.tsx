@@ -372,9 +372,9 @@ export default function App() {
             <div className="relative rounded-3xl overflow-hidden border-4 border-white shadow-2xl bg-white">
               <div className="relative h-96 w-full overflow-hidden bg-stone-200">
                 <img
-                  src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=1000&auto=format&fit=crop&q=80"
-                  alt="Senior patron embracing young blood boy"
-                  className="w-full h-full object-cover"
+                  src="/fireside-embrace.jpg"
+                  alt="Patron Rupert with conduit Julian during a supervised transfusion sitting"
+                  className="w-full h-full object-cover object-[center_20%]"
                 />
                 <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md border border-stone-300 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-md">
                   <div className="w-2 h-2 rounded-full bg-rose-600 animate-ping"></div>
@@ -427,9 +427,9 @@ export default function App() {
               <div className="bg-white rounded-3xl overflow-hidden border border-stone-300/80 shadow-md hover:shadow-xl transition group">
                 <div className="relative h-64 overflow-hidden bg-stone-100">
                   <img
-                    src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=800&auto=format&fit=crop&q=80"
-                    alt="Senior partner and young associate"
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                    src="/fireside-embrace.jpg"
+                    alt="Patron and conduit sharing a warm transfusion sitting"
+                    className="w-full h-full object-cover object-[center_25%] group-hover:scale-105 transition duration-500"
                   />
                   <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[9px] px-2 py-0.5 rounded font-mono">
                     STOCK #0049
