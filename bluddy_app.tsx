@@ -649,12 +649,7 @@ function Landing({ launch }: { launch: () => void }) {
           </p>
         </div>
         <div className="footer-note">
-          <span>Fictional concept / 2026</span>
-          <p>
-            Bluddy is a satire of the longevity economy.
-            <br />
-            This is an interactive demonstration, not a clinical service.
-          </p>
+          <span>Bluddy / 2026</span>
         </div>
       </footer>
     </div>
