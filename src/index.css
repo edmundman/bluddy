@@ -889,12 +889,6 @@ h2 {
 .demo-nav button.active {
   color: var(--red);
 }
-.demo-disclaimer {
-  text-align: center;
-  font-size: 9px;
-  color: #9c8a80;
-  margin: 19px 0 0;
-}
 .empty-state {
   padding: 70px 15px;
   text-align: center;

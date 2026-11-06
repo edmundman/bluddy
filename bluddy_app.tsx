@@ -1372,9 +1372,6 @@ export default function App() {
           </div>
         )}
       </main>
-      <p className="demo-disclaimer">
-        Bluddy is a fictional concept. Not a clinical service.
-      </p>
     </div>
   );
 }
