@@ -213,8 +213,8 @@ function OfferBuilder({
           }}
         >
           <p className="offer-description">
-            Use the suggested amounts, or propose your own. The donor has the
-            final say.
+            Offers open after a mutual match. Use the suggested amounts, or
+            propose your own. The donor has the final say.
           </p>
           <div className="offer-fields">
             <label>
@@ -514,6 +514,10 @@ function Landing({ launch }: { launch: () => void }) {
               </p>
             </article>
           </div>
+          <p className="concept-note">
+            After a mutual match, either person can start a conversation about
+            terms. Try an example below.
+          </p>
           <OfferBuilder />
           <div className="donor-details">
             <div>
@@ -711,6 +715,7 @@ export default function App() {
     }));
   };
   const startOffer = (profile: Profile) => {
+    if (!matches.some((match) => match.id === profile.id)) return;
     setChat(null);
     setMatch(null);
     setDetail(null);
@@ -727,7 +732,7 @@ export default function App() {
     setOfferTo(profile);
   };
   const sendOffer = (terms: OfferTerms) => {
-    if (!offerTo) return;
+    if (!offerTo || !matches.some((match) => match.id === offerTo.id)) return;
     const recipient = offerTo;
     const id = nextOfferId.current++;
     setOffers((prev) => [
@@ -894,12 +899,14 @@ export default function App() {
                         <p className="profile-bio">{current.bio}</p>
                       </div>
                     </article>
-                    <button
-                      className="button profile-offer"
-                      onClick={() => startOffer(current)}
-                    >
-                      Make an offer <Send size={16} />
-                    </button>
+                    {matches.some((match) => match.id === current.id) && (
+                      <button
+                        className="button profile-offer"
+                        onClick={() => startOffer(current)}
+                      >
+                        Make an offer <Send size={16} />
+                      </button>
+                    )}
                     <div className="swipe-actions">
                       <button
                         className="icon-button"
@@ -1089,16 +1096,20 @@ export default function App() {
                 ) : (
                   <div className="empty-state">
                     <Send size={34} />
-                    <h2>Start with an offer.</h2>
+                    <h2>Match first. Then make an offer.</h2>
                     <p>
-                      Choose a profile, adjust the suggested rate, and send a
-                      proposal. You can review or withdraw it here.
+                      Once you both express interest, open your matched
+                      conversation to propose an amount. Review or withdraw sent
+                      offers here.
                     </p>
                     <button
                       className="button"
-                      onClick={() => setTab("discover")}
+                      onClick={() =>
+                        setTab(matches.length ? "connections" : "discover")
+                      }
                     >
-                      Explore profiles <ArrowRight size={16} />
+                      {matches.length ? "View matches" : "Explore profiles"}{" "}
+                      <ArrowRight size={16} />
                     </button>
                   </div>
                 )}
@@ -1284,12 +1295,14 @@ export default function App() {
                   <button className="button" onClick={() => swipe(true)}>
                     Express interest <Heart size={16} />
                   </button>
-                  <button
-                    className="button secondary"
-                    onClick={() => startOffer(detail)}
-                  >
-                    Make an offer <Send size={16} />
-                  </button>
+                  {matches.some((match) => match.id === detail.id) && (
+                    <button
+                      className="button secondary"
+                      onClick={() => startOffer(detail)}
+                    >
+                      Make an offer <Send size={16} />
+                    </button>
+                  )}
                 </div>
               )}
               {chat && (
@@ -1302,12 +1315,14 @@ export default function App() {
                     </div>
                   </header>
                   <div className="chat-messages" aria-live="polite">
-                    <button
-                      className="button small chat-offer-button"
-                      onClick={() => startOffer(chat)}
-                    >
-                      Make {chat.name} an offer <Send size={15} />
-                    </button>
+                    {matches.some((match) => match.id === chat.id) && (
+                      <button
+                        className="button small chat-offer-button"
+                        onClick={() => startOffer(chat)}
+                      >
+                        Make {chat.name} an offer <Send size={15} />
+                      </button>
+                    )}
                     <p className="demo-caption">
                       A connection begins with a conversation.
                     </p>
