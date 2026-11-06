@@ -33,9 +33,9 @@ const PROFILES: Profile[] = [
     name: "Maya",
     age: 26,
     bloodType: "A+",
-    location: "East London",
+    location: "Brooklyn, NY",
     distance: 4,
-    bio: "Design researcher, weekend runner, and always curious about what comes next. Here to meet people with a different perspective.",
+    bio: "Brooklyn-based design researcher and weekend runner. Usually starting the day with a lap of Prospect Park. Here to meet people with a different perspective.",
     tags: ["Design", "Running", "Good conversation"],
     avatar:
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80",
@@ -45,9 +45,9 @@ const PROFILES: Profile[] = [
     name: "Julian",
     age: 28,
     bloodType: "O−",
-    location: "North London",
+    location: "Manhattan, NY",
     distance: 7,
-    bio: "Architecture graduate with an interest in the future of wellbeing. Usually found in a bookshop or planning a long walk.",
+    bio: "Architecture grad living on the Upper West Side, with an interest in the future of well-being. Usually in a bookstore or walking along the Hudson.",
     tags: ["Architecture", "Books", "Walking"],
     avatar:
       "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&auto=format&fit=crop&q=80",
@@ -57,9 +57,9 @@ const PROFILES: Profile[] = [
     name: "Sebastian",
     age: 24,
     bloodType: "A+",
-    location: "West London",
+    location: "Queens, NY",
     distance: 9,
-    bio: "Music, languages, and conversations that go somewhere unexpected. Exploring new connections at my own pace.",
+    bio: "Queens-based music lover. Live shows, neighborhood food spots, and conversations that go somewhere unexpected. Exploring new connections at my own pace.",
     tags: ["Music", "Languages", "Travel"],
     avatar:
       "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&auto=format&fit=crop&q=80",
@@ -69,9 +69,9 @@ const PROFILES: Profile[] = [
     name: "Tristan",
     age: 31,
     bloodType: "B+",
-    location: "South London",
+    location: "Jersey City, NJ",
     distance: 12,
-    bio: "Working in sustainability. Interested in thoughtful people, shared ideas, and a more considered approach to the future.",
+    bio: "Working in sustainability in Jersey City. Into waterfront bike rides, good food, and meeting thoughtful people across the New York area.",
     tags: ["Sustainability", "Cycling", "Food"],
     avatar:
       "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&auto=format&fit=crop&q=80",
@@ -103,7 +103,7 @@ function ProfilePreview() {
         <h3>
           Maya, 26 <ShieldCheck size={16} />
         </h3>
-        <p>Plasma donor · East London</p>
+        <p>Plasma donor · {PROFILES[0].location}</p>
         <div className="preview-tags">
           <span className="tag">Verified profile</span>
           <span className="tag neutral">Match intent</span>
@@ -112,7 +112,19 @@ function ProfilePreview() {
     </div>
   );
 }
-function OfferBuilder({ name = "Maya" }: { name?: string }) {
+type OfferTerms = { amount: number; travel: number; note: string };
+type DemoOffer = OfferTerms & {
+  id: number;
+  profile: Profile;
+  status: "Pending" | "Withdrawn";
+};
+function OfferBuilder({
+  name = "Maya",
+  onSend,
+}: {
+  name?: string;
+  onSend?: (terms: OfferTerms) => void;
+}) {
   const [amount, setAmount] = useState("125");
   const [travel, setTravel] = useState("25");
   const [note, setNote] = useState("");
@@ -166,8 +178,25 @@ function OfferBuilder({ name = "Maya" }: { name?: string }) {
           >
             Edit offer
           </button>
+          {onSend && (
+            <button
+              type="button"
+              className="button send-offer"
+              onClick={() =>
+                onSend({
+                  amount: Number(amount),
+                  travel: Number(travel),
+                  note: note.trim(),
+                })
+              }
+            >
+              Send offer <Send size={16} />
+            </button>
+          )}
           <p className="offer-footnote">
-            Preview only. This offer has not been sent.
+            {onSend
+              ? "Demo only. Sending adds this offer to your app activity; no real person is contacted or payment taken."
+              : "Preview only. This offer has not been sent."}
           </p>
         </div>
       ) : (
@@ -456,7 +485,7 @@ function Landing({ launch }: { launch: () => void }) {
               <p className="donor-amount">
                 $125<span> suggested participation offer</span>
               </p>
-              <h3>Time recognised.</h3>
+              <h3>Time recognized.</h3>
               <p>
                 A starting point for an offer, not a fixed price. Seekers can
                 propose an amount; donors can suggest their own terms.
@@ -646,13 +675,17 @@ export default function App() {
   const [chat, setChat] = useState<Profile | null>(null);
   const [messages, setMessages] = useState<Record<number, Message[]>>({});
   const [input, setInput] = useState("");
+  const [offerTo, setOfferTo] = useState<Profile | null>(null);
+  const [offers, setOffers] = useState<DemoOffer[]>([]);
+  const [offerNotice, setOfferNotice] = useState("");
+  const nextOfferId = useRef(1);
   const [type, setType] = useState("Any");
   const [radius, setRadius] = useState(25);
   const [dragX, setDragX] = useState(0);
   const dragStart = useRef<number | null>(null);
   const modalClose = useRef<HTMLButtonElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
-  const hasModal = Boolean(match || detail || chat);
+  const hasModal = Boolean(match || detail || chat || offerTo);
   useEffect(() => {
     if (!hasModal) return;
     previousFocus.current = document.activeElement as HTMLElement;
@@ -677,6 +710,46 @@ export default function App() {
       [profile.id]: prev[profile.id] || WELCOME,
     }));
   };
+  const startOffer = (profile: Profile) => {
+    setChat(null);
+    setMatch(null);
+    setDetail(null);
+    if (
+      offers.some(
+        (offer) =>
+          offer.profile.id === profile.id && offer.status === "Pending",
+      )
+    ) {
+      setTab("offers");
+      setOfferNotice(`You already have a pending offer for ${profile.name}.`);
+      return;
+    }
+    setOfferTo(profile);
+  };
+  const sendOffer = (terms: OfferTerms) => {
+    if (!offerTo) return;
+    const recipient = offerTo;
+    const id = nextOfferId.current++;
+    setOffers((prev) => [
+      { ...terms, id, profile: recipient, status: "Pending" },
+      ...prev,
+    ]);
+    setMessages((prev) => ({
+      ...prev,
+      [recipient.id]: [
+        ...(prev[recipient.id] || []),
+        {
+          sender: "me",
+          text: `Demo offer sent: $${(terms.amount + terms.travel).toFixed(2)} total ($${terms.amount.toFixed(2)} participation + $${terms.travel.toFixed(2)} travel).${terms.note ? ` ${terms.note}` : ""}`,
+        },
+      ],
+    }));
+    setOfferTo(null);
+    setTab("offers");
+    setOfferNotice(
+      `Offer sent to ${recipient.name} in this demo. Awaiting a response.`,
+    );
+  };
   const swipe = (like: boolean) => {
     if (!current) return;
     setSeen((prev) => [...prev, current.id]);
@@ -693,12 +766,13 @@ export default function App() {
     setMatch(null);
     setDetail(null);
     setChat(null);
+    setOfferTo(null);
   };
   const modalKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Escape") closeModal();
     if (event.key === "Tab") {
       const nodes = event.currentTarget.querySelectorAll<HTMLElement>(
-        'button, input, [tabindex="0"]',
+        'button:not([disabled]), input, textarea, select, summary, [tabindex="0"]',
       );
       const first = nodes[0],
         last = nodes[nodes.length - 1];
@@ -747,7 +821,7 @@ export default function App() {
                 </div>
                 <div className="location-row">
                   <span>
-                    <MapPin size={13} /> London · within {radius} km
+                    <MapPin size={13} /> New York City · within {radius} miles
                   </span>
                   <span>{type === "Any" ? "All types" : `Type ${type}`}</span>
                 </div>
@@ -820,6 +894,12 @@ export default function App() {
                         <p className="profile-bio">{current.bio}</p>
                       </div>
                     </article>
+                    <button
+                      className="button profile-offer"
+                      onClick={() => startOffer(current)}
+                    >
+                      Make an offer <Send size={16} />
+                    </button>
                     <div className="swipe-actions">
                       <button
                         className="icon-button"
@@ -911,6 +991,123 @@ export default function App() {
                 )}
               </>
             )}
+            {tab === "offers" && (
+              <>
+                <div className="demo-title">
+                  <div>
+                    <span className="eyebrow">
+                      Your proposals, in one place
+                    </span>
+                    <h1>Your offers.</h1>
+                  </div>
+                  <Send size={22} color="var(--red)" />
+                </div>
+                {offerNotice && (
+                  <p className="offer-notice" role="status">
+                    {offerNotice}
+                  </p>
+                )}
+                {offers.length ? (
+                  <div className="app-offers">
+                    {offers.map((offer) => (
+                      <article className="app-offer-card" key={offer.id}>
+                        <div className="app-offer-person">
+                          <img src={offer.profile.avatar} alt="" />
+                          <div>
+                            <h2>
+                              {offer.profile.name}, {offer.profile.age}
+                            </h2>
+                            <p>{offer.profile.location}</p>
+                          </div>
+                          <span
+                            className={`tag ${offer.status === "Withdrawn" ? "neutral" : ""}`}
+                          >
+                            {offer.status}
+                          </span>
+                        </div>
+                        <p className="app-offer-value">
+                          ${(offer.amount + offer.travel).toFixed(2)}{" "}
+                          <span>total offered · USD</span>
+                        </p>
+                        <dl>
+                          <div>
+                            <dt>Participation</dt>
+                            <dd>${offer.amount.toFixed(2)}</dd>
+                          </div>
+                          <div>
+                            <dt>Travel allowance</dt>
+                            <dd>${offer.travel.toFixed(2)}</dd>
+                          </div>
+                          <div>
+                            <dt>Platform deduction</dt>
+                            <dd>$0.00</dd>
+                          </div>
+                        </dl>
+                        {offer.note && (
+                          <p className="app-offer-note">{offer.note}</p>
+                        )}
+                        <div className="app-offer-actions">
+                          <button
+                            className="button small secondary"
+                            onClick={() => openChat(offer.profile)}
+                          >
+                            Open conversation <MessageCircle size={14} />
+                          </button>
+                          {offer.status === "Pending" && (
+                            <button
+                              className="text-link"
+                              onClick={() => {
+                                setOffers((prev) =>
+                                  prev.map((item) =>
+                                    item.id === offer.id
+                                      ? { ...item, status: "Withdrawn" }
+                                      : item,
+                                  ),
+                                );
+                                setOfferNotice(
+                                  `Your offer to ${offer.profile.name} was withdrawn.`,
+                                );
+                                setMessages((prev) => ({
+                                  ...prev,
+                                  [offer.profile.id]: [
+                                    ...(prev[offer.profile.id] || []),
+                                    {
+                                      sender: "me",
+                                      text: `Demo offer #${offer.id} withdrawn.`,
+                                    },
+                                  ],
+                                }));
+                              }}
+                            >
+                              Withdraw offer
+                            </button>
+                          )}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-state">
+                    <Send size={34} />
+                    <h2>Start with an offer.</h2>
+                    <p>
+                      Choose a profile, adjust the suggested rate, and send a
+                      proposal. You can review or withdraw it here.
+                    </p>
+                    <button
+                      className="button"
+                      onClick={() => setTab("discover")}
+                    >
+                      Explore profiles <ArrowRight size={16} />
+                    </button>
+                  </div>
+                )}
+                <p className="demo-caption offers-caption">
+                  Demo activity only. No real offers, payments, or appointments.
+                  Offers last for this page session.
+                </p>
+              </>
+            )}
             {tab === "preferences" && (
               <>
                 <div className="demo-title">
@@ -921,7 +1118,7 @@ export default function App() {
                 </div>
                 <div className="settings-panel">
                   <label htmlFor="radius">
-                    Distance <strong>{radius} km</strong>
+                    Distance <strong>{radius} miles</strong>
                   </label>
                   <input
                     id="radius"
@@ -962,14 +1159,14 @@ export default function App() {
                 <div className="account-card">
                   <img src={ADRIAN} alt="Adrian" />
                   <h2>Adrian, 58</h2>
-                  <p>Longevity seeker · London</p>
+                  <p>Longevity seeker · Manhattan, NY</p>
                   <span className="tag">Plus member · demo</span>
                 </div>
                 <div className="settings-panel">
                   <h3>Looking ahead.</h3>
                   <p>
-                    Interested in the future of wellbeing and meeting people who
-                    see things differently.
+                    Interested in the future of well-being and meeting people
+                    who see things differently.
                   </p>
                   <div className="interests">
                     <span className="tag neutral">Travel</span>
@@ -988,6 +1185,7 @@ export default function App() {
             {[
               { id: "discover", label: "Discover", icon: Heart },
               { id: "connections", label: "Connections", icon: MessageCircle },
+              { id: "offers", label: "Offers", icon: Send },
               {
                 id: "preferences",
                 label: "Preferences",
@@ -1018,11 +1216,13 @@ export default function App() {
             role="dialog"
             aria-modal="true"
             aria-label={
-              chat
-                ? `Conversation with ${chat.name}`
-                : detail
-                  ? `${detail.name}'s profile`
-                  : "It's a match"
+              offerTo
+                ? `Make an offer to ${offerTo.name}`
+                : chat
+                  ? `Conversation with ${chat.name}`
+                  : detail
+                    ? `${detail.name}'s profile`
+                    : "It's a match"
             }
             onKeyDown={modalKeyDown}
           >
@@ -1035,6 +1235,15 @@ export default function App() {
               >
                 <X size={20} />
               </button>
+              {offerTo && (
+                <div className="app-offer-composer">
+                  <OfferBuilder
+                    key={offerTo.id}
+                    name={offerTo.name}
+                    onSend={sendOffer}
+                  />
+                </div>
+              )}
               {match && (
                 <div className="match-content">
                   <span className="eyebrow">Mutual interest</span>
@@ -1062,7 +1271,7 @@ export default function App() {
                     {detail.name}, {detail.age}
                   </h2>
                   <p>
-                    {detail.location} · {detail.distance} km away
+                    {detail.location} · {detail.distance} miles away
                   </p>
                   <p>{detail.bio}</p>
                   <div className="interests">
@@ -1074,6 +1283,12 @@ export default function App() {
                   </div>
                   <button className="button" onClick={() => swipe(true)}>
                     Express interest <Heart size={16} />
+                  </button>
+                  <button
+                    className="button secondary"
+                    onClick={() => startOffer(detail)}
+                  >
+                    Make an offer <Send size={16} />
                   </button>
                 </div>
               )}
@@ -1087,10 +1302,12 @@ export default function App() {
                     </div>
                   </header>
                   <div className="chat-messages" aria-live="polite">
-                    <details className="chat-offer">
-                      <summary>Make {chat.name} an offer</summary>
-                      <OfferBuilder key={chat.id} name={chat.name} />
-                    </details>
+                    <button
+                      className="button small chat-offer-button"
+                      onClick={() => startOffer(chat)}
+                    >
+                      Make {chat.name} an offer <Send size={15} />
+                    </button>
                     <p className="demo-caption">
                       A connection begins with a conversation.
                     </p>

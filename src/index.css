@@ -1658,3 +1658,125 @@ h2 {
     align-items: stretch;
   }
 }
+.profile-offer {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 18px;
+}
+.offer-review .send-offer {
+  display: flex;
+  width: 100%;
+  margin-top: 12px;
+}
+.app-offer-composer {
+  padding-top: 28px;
+}
+.app-offer-composer .offer-builder {
+  padding: 17px;
+}
+.app-offer-composer .offer-heading {
+  flex-direction: column;
+  align-items: start;
+}
+.app-offer-composer .offer-heading h3 {
+  font-size: 21px;
+}
+.app-offer-composer .offer-fields {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+.app-offer-composer .offer-total {
+  flex-direction: column;
+  align-items: stretch;
+}
+.offer-notice {
+  padding: 13px;
+  background: #fff0e9;
+  color: #a64333;
+  font-size: 11px;
+  line-height: 1.8;
+  border-radius: 9px;
+  margin-bottom: 18px;
+}
+.app-offers {
+  display: grid;
+  gap: 18px;
+}
+.app-offer-card {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+}
+.app-offer-person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.app-offer-person img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.app-offer-person > div {
+  flex: 1;
+}
+.app-offer-person h2 {
+  font-size: 15px;
+  letter-spacing: -0.3px;
+}
+.app-offer-person p {
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.app-offer-value {
+  font-size: 30px;
+  font-weight: 650;
+  color: var(--red);
+  margin-top: 20px;
+}
+.app-offer-value span {
+  display: block;
+  font-size: 9px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.app-offer-card dl {
+  margin-block: 16px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.app-offer-card dl > div {
+  display: flex;
+  justify-content: space-between;
+  padding-block: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.app-offer-note {
+  background: #fff5f0;
+  padding: 12px;
+  border-radius: 7px;
+  font-size: 11px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.app-offer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 17px;
+}
+.app-offer-actions .text-link {
+  font-size: 10px;
+  color: var(--muted);
+}
+.offers-caption {
+  margin-top: 20px;
+}
+.chat-offer-button {
+  width: 100%;
+  flex-shrink: 0;
+}
